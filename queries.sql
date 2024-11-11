@@ -1,12 +1,19 @@
 -- USER MANAGEMENT
 
 -- Get user profile
-SELECT id, first_name, last_name, username, bio, profile_image_url
+SELECT
+    first_name,
+    last_name,
+    username,
+    birthdate,
+    bio,
+    profile_image_url,
+    banner_image_url
 FROM users
 WHERE id = ?;
 
--- Get user friends
-SELECT first_name, last_name, username
+-- Get user friends list
+SELECT first_name, last_name, username, bio, profile_image_url
 FROM users
 WHERE id IN (
     SELECT user_friend_id
@@ -29,25 +36,50 @@ WHERE id = ?;
 -- COMMUNITY MANAGEMENT
 
 -- Get community details
-SELECT title, `description`, bio, profile_image_url, banner_image_url, business_phone, business_email
+SELECT
+    title,
+    `description`,
+    bio,
+    is_verified,
+    business_phone,
+    business_email,
+    office_address,
+    events_location,
+    profile_image_url,
+    banner_image_url
 FROM communities
 WHERE id = ?;
 
 -- Get communities the user has joined
-SELECT title, bio
+SELECT title, bio, is_verified, events_location, profile_image_url, banner_image_url
 FROM communities
 WHERE id IN (SELECT community_id FROM user_joined_communities WHERE user_id = ?);
 
 -- Get the Communities owned by the user
-SELECT communities.title, communities.bio, user_own_communities.owned_at
+SELECT
+    communities.title,
+    communities.bio,
+    communities.is_verified,
+    communities.events_location,
+    user_own_communities.owned_at
 FROM communities
 JOIN user_own_communities ON communities.id = user_own_communities.community_id
-WHERE user_id = ?;
+WHERE user_own_communities.user_id = ?;
 
--- Get community posts
-SELECT title, `description`, created_at, updated_at
-FROM community_posts
-WHERE community_id = ?;
+-- Get community post
+SELECT
+    communities.title,
+    communities.profile_image_url,
+    community_posts.title,
+    community_posts.short_description,
+    community_posts.activity_location,
+    community_posts.created_at,
+    community_posts.updated_at,
+    post_images.image_url
+FROM communities
+JOIN community_posts ON communities.id = community_posts.community_id
+JOIN post_images ON community_posts.id = post_images.post_id
+WHERE community_posts.community_id = ?;
 
 -- END OF COMMUNITY MANAGEMENT
 
@@ -57,11 +89,12 @@ WHERE community_id = ?;
 SELECT
     users.first_name,
     users.last_name,
+    users.profile_image_url,
     user_post_comments.comment,
     user_post_comments.commented_at
 FROM users
 JOIN user_post_comments ON users.id = user_post_comments.user_id
-WHERE post_id = ?;
+WHERE user_post_comments.post_id = ?;
 
 -- Get post likes count
 SELECT COUNT(*) AS like_count
@@ -73,10 +106,9 @@ SELECT COUNT(*) AS dislike_count
 FROM user_post_dislikes
 WHERE post_id = ?;
 
--- Get users interested in post count
+-- Get users interested in post
 SELECT COUNT(*) AS post_interest
-FROM users
-JOIN user_post_interest ON users.id = user_post_interest.user_id
+FROM user_post_interest
 WHERE user_post_interest.post_id = ?;
 
 -- Get users interested in post
@@ -84,6 +116,7 @@ SELECT
     users.first_name,
     users.last_name,
     users.bio,
+    users.profile_image_url,
     user_post_interest.interested_at
 FROM users
 JOIN user_post_interest ON users.id = user_post_interest.user_id
@@ -102,8 +135,8 @@ VALUES (?, ?);
 -- POST CREATION AND CONTENT MANAGEMENT
 
 -- Create a new post
-INSERT INTO community_posts (community_id, title, description)
-VALUES (?, ?, ?);
+INSERT INTO community_posts (community_id, title, short_description, activity_location)
+VALUES (?, ?, ?, ?);
 
 -- Add images to post
 INSERT INTO post_images (post_id, image_url)
@@ -122,9 +155,16 @@ VALUES (?, ?);
 -- COMMUNITY RATING AND REVIEW
 
 -- Get community rating by user
-SELECT rating, comment, rated_at
-FROM user_community_rating
-WHERE user_id = ? AND community_id = ?;
+SELECT
+    users.first_name,
+    users.last_name,
+    users.profile_image_url,
+    user_community_rating.rating,
+    user_community_rating.comment,
+    user_community_rating.rated_at
+FROM users
+JOIN user_community_rating ON users.id = user_community_rating.user_id
+WHERE user_community_rating.user_id = ? AND user_community_rating.community_id = ?;
 
 -- Get average community rating
 SELECT ROUND(AVG(rating), 2) AS average_rating
@@ -138,7 +178,8 @@ WHERE community_id = ?;
 -- Search posts by category
 SELECT
     community_posts.title,
-    community_posts.description,
+    community_posts.short_description,
+    community_posts.activity_location,
     community_posts.created_at,
     post_images.image_url
 FROM community_posts
@@ -150,12 +191,12 @@ WHERE categories.`type` IN (?);
 -- Search posts by title
 SELECT
     community_posts.title,
-    community_posts.description,
+    community_posts.short_description,
+    community_posts.activity_location,
     community_posts.created_at,
     post_images.image_url
 FROM community_posts
 JOIN post_images ON community_posts.id = post_images.post_id
-JOIN post_categories ON community_posts.id = post_categories.post_id
 WHERE community_posts.title LIKE ?;
 
 -- Search user by first and last name

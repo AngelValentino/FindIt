@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS = 0; -- Disable foreign key checks
 
--- Drop all tables if they exist
+-- DROP TABLE IF EXISTS
 DROP TABLE IF EXISTS user_post_dislikes;
 DROP TABLE IF EXISTS user_post_likes;
 DROP TABLE IF EXISTS user_post_comments;
@@ -20,15 +20,16 @@ DROP TABLE IF EXISTS subcategories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS communities;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS user_logs;
 
 SET FOREIGN_KEY_CHECKS = 1; -- Re-enable foreign key checks
 
--- Create tables
+-- CREATE TABLES
 CREATE TABLE users (
     id INT UNSIGNED AUTO_INCREMENT,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
-    username VARCHAR(32),
+    username VARCHAR(32) NOT NULL UNIQUE,
     birthdate DATE NOT NULL,
     password_hash VARCHAR(128) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -51,13 +52,14 @@ CREATE TABLE communities (
     profile_image_url VARCHAR(512),
     banner_image_url VARCHAR(512),
     PRIMARY KEY(id)
-    );
+);
 
 CREATE TABLE community_posts (
     id INT UNSIGNED AUTO_INCREMENT,
     community_id INT UNSIGNED,
-    title VARCHAR(75),
-    `description` VARCHAR(250),
+    title VARCHAR(75) NOT NULL UNIQUE,
+    short_description VARCHAR(250),
+    activity_location VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY(id),
@@ -113,9 +115,12 @@ CREATE TABLE user_joined_communities (
 CREATE TABLE user_community_rating (
     user_id INT UNSIGNED,
     community_id INT UNSIGNED,
-    rating TINYINT UNSIGNED  NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    rating TINYINT UNSIGNED NOT NULL CHECK (rating BETWEEN 1 AND 5),
     comment VARCHAR(250),
-    rated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    rated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(user_id, community_id),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(community_id) REFERENCES communities(id) ON DELETE CASCADE
 );
 
 CREATE TABLE user_own_communities (
@@ -137,11 +142,12 @@ CREATE TABLE user_post_interest (
 );
 
 CREATE TABLE user_post_comments (
+    id INT UNSIGNED AUTO_INCREMENT,
     user_id INT UNSIGNED,
     post_id INT UNSIGNED,
-    commented_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     comment VARCHAR(250),
-    PRIMARY KEY(user_id, post_id),
+    commented_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(id),
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY(post_id) REFERENCES community_posts(id) ON DELETE CASCADE
 );
@@ -149,6 +155,7 @@ CREATE TABLE user_post_comments (
 CREATE TABLE user_post_likes (
     user_id INT UNSIGNED,
     post_id INT UNSIGNED,
+    PRIMARY KEY(user_id, post_id),
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY(post_id) REFERENCES community_posts(id) ON DELETE CASCADE
 );
@@ -156,6 +163,7 @@ CREATE TABLE user_post_likes (
 CREATE TABLE user_post_dislikes (
     user_id INT UNSIGNED,
     post_id INT UNSIGNED,
+    PRIMARY KEY(user_id, post_id),
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY(post_id) REFERENCES community_posts(id) ON DELETE CASCADE
 );
@@ -192,8 +200,51 @@ CREATE TABLE post_tags (
     FOREIGN KEY(tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
+CREATE TABLE user_logs (
+    id INT UNSIGNED AUTO_INCREMENT,
+    `type` VARCHAR(50), -- The action type: 'insert', 'update', 'delete'
+    old_username VARCHAR(32),
+    new_username VARCHAR(32),
+    old_password VARCHAR(128),
+    new_password VARCHAR(128),
+    action_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(id)
+);
 
--- Test data
+-- ADD TRIGGERS
+
+DELIMITER $$
+
+CREATE TRIGGER log_user_inserts
+AFTER INSERT ON users
+FOR EACH ROW
+BEGIN
+    INSERT INTO user_logs (`type`, old_username, new_username, old_password, new_password)
+    VALUES ('insert', NULL, NEW.username, NULL, NEW.password_hash);
+END $$
+
+CREATE TRIGGER log_user_updates
+AFTER UPDATE ON users
+FOR EACH ROW
+BEGIN
+    IF OLD.username != NEW.username OR OLD.password_hash != NEW.password_hash THEN
+        INSERT INTO user_logs (type, old_username, new_username, old_password, new_password)
+        VALUES ('update', OLD.username, NEW.username, OLD.password_hash, NEW.password_hash);
+    END IF;
+END $$
+
+CREATE TRIGGER log_user_deletes
+AFTER DELETE ON users
+FOR EACH ROW
+BEGIN
+    INSERT INTO user_logs (`type`, old_username, new_username, old_password, new_password)
+    VALUES ('delete', OLD.username, NULL, OLD.password_hash, NULL);
+END $$
+
+DELIMITER ;
+
+
+-- TEST DATA
 INSERT INTO users (first_name, last_name, username, birthdate, password_hash, email, profile_image_url, banner_image_url, bio) VALUES
     ('John', 'Doe', 'johndoe', '1990-05-12', 'hashedpassword1', 'johndoe@example.com', 'http://example.com/johndoe_profile.jpg', 'http://example.com/johndoe_banner.jpg', 'A passionate train enthusiast'),
     ('Jane', 'Smith', 'janesmith', '1988-07-24', 'hashedpassword2', 'janesmith@example.com', 'http://example.com/janesmith_profile.jpg', 'http://example.com/janesmith_banner.jpg', 'Classic car lover and restorer'),
@@ -206,12 +257,12 @@ INSERT INTO communities (title, bio, `description`, is_verified, business_phone,
     ('Muscle Machine Madness', 'For those who thrive on horsepower and power', 'Muscle Machine Madness is the ultimate community for lovers of powerful muscle cars. From high-speed chases to customizing your ride, we share the latest in performance and car culture.', 1, '+3444555666', 'contact@musclemachinemadness.com', '789 Speedway Blvd, Detroit', '101 Muscle Car Track, Detroit', 'http://example.com/musclemachinemadness_profile.jpg', 'http://example.com/musclemachinemadness_banner.jpg'),
     ('Cafe Racer Garage', 'For custom bike builders and cafe racer enthusiasts', 'Cafe Racer Garage is the home for custom bike builders and cafe racer fans. Share your builds, get tips on bike modifications, and connect with others who live the cafe racer lifestyle.', 1, '+4555666777', 'contact@caferacergarage.com', '321 Custom Bikes St, Austin', '654 Racer Meet, Austin', 'http://example.com/caferacergarage_profile.jpg', 'http://example.com/caferacergarage_banner.jpg'),
     ('Revive & Ride', 'For car restoration experts and enthusiasts', "Revive & Ride is the place for automotive restoration aficionados. Whether you're restoring a classic car or motorcycle, we offer tips, showcase your builds, and share restoration success stories.", 1, '+5666777888', 'contact@reviveride.com', '987 Restoration Ave, San Francisco', '234 Auto Restoration Expo, SF', 'http://example.com/reviveride_profile.jpg', 'http://example.com/reviveride_banner.jpg');
-INSERT INTO community_posts (community_id, title, `description`) VALUES
-    (1, 'The Golden Age of Trains', 'Exploring the history of trains during the 19th century. A fascinating period of development in railway technology and culture.'),
-    (2, 'Top 10 Classic Cars of All Time', 'A list of the best and most iconic classic cars that have defined the automotive world over the last century.'),
-    (3, 'The Muscle Car Revolution', 'An in-depth look at the history of muscle cars and their impact on automotive performance and culture.'),
-    (4, 'Building Your First Cafe Racer', 'A step-by-step guide for beginners interested in building their own cafe racer bike.'),
-    (5, 'Restoring a Vintage Motorcycle', 'Tips and tricks for restoring motorcycles from the 1950s and 1960s to their former glory.');
+INSERT INTO community_posts (community_id, title, short_description, activity_location) VALUES
+    (1, 'The Golden Age of Trains', 'Exploring the history of trains during the 19th century. A fascinating period of development in railway technology and culture.', 'Railway Museum'),
+    (2, 'Top 10 Classic Cars of All Time', 'A list of the best and most iconic classic cars that have defined the automotive world over the last century.', 'Classic Car Exhibition'),
+    (3, 'The Muscle Car Revolution', 'An in-depth look at the history of muscle cars and their impact on automotive performance and culture.', 'Auto Showroom'),
+    (4, 'Building Your First Cafe Racer', 'A step-by-step guide for beginners interested in building their own cafe racer bike.', 'Motorcycle Workshop'),
+    (5, 'Restoring a Vintage Motorcycle', 'Tips and tricks for restoring motorcycles from the 1950s and 1960s to their former glory.', 'Vintage Motorcycle Garage');
 INSERT INTO categories (`type`) VALUES
     ('Trains'),
     ('Cars'),
