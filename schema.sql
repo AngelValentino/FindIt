@@ -1,6 +1,6 @@
+-- DROP TABLES
 SET FOREIGN_KEY_CHECKS = 0; -- Disable foreign key checks
 
--- DROP TABLE IF EXISTS
 DROP TABLE IF EXISTS user_post_dislikes;
 DROP TABLE IF EXISTS user_post_likes;
 DROP TABLE IF EXISTS user_post_comments;
@@ -23,6 +23,11 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS user_logs;
 
 SET FOREIGN_KEY_CHECKS = 1; -- Re-enable foreign key checks
+
+-- DROP TRIGGERS
+DROP TRIGGER IF EXISTS log_user_inserts;
+DROP TRIGGER IF EXISTS log_user_updates;
+DROP TRIGGER IF EXISTS log_user_deletes;
 
 -- CREATE TABLES
 CREATE TABLE users (
@@ -212,7 +217,6 @@ CREATE TABLE user_logs (
 );
 
 -- ADD TRIGGERS
-
 DELIMITER $$
 
 CREATE TRIGGER log_user_inserts
@@ -242,7 +246,6 @@ BEGIN
 END $$
 
 DELIMITER ;
-
 
 -- TEST DATA
 INSERT INTO users (first_name, last_name, username, birthdate, password_hash, email, profile_image_url, banner_image_url, bio) VALUES
