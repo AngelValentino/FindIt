@@ -271,4 +271,4 @@ I strongly believe that further and extended optimization should not be implemen
 
 ## Limitations
 
-The current iteration is a prototype of a larger project. While it effectively manages user, post, and community interactions, it does not yet include features such as a notification system or direct messaging for users.
+The current iteration is a prototype of a larger project. While it effectively manages users, posts and communities interactions, it does not yet include features such as a notification system or direct messaging for users.
