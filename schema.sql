@@ -62,7 +62,7 @@ CREATE TABLE communities (
 CREATE TABLE community_posts (
     id INT UNSIGNED AUTO_INCREMENT,
     community_id INT UNSIGNED,
-    title VARCHAR(75) NOT NULL UNIQUE,
+    title VARCHAR(75) NOT NULL,
     short_description VARCHAR(250),
     activity_location VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -93,7 +93,7 @@ CREATE TABLE category_subcategories (
 
 CREATE TABLE tags (
     id INT UNSIGNED AUTO_INCREMENT,
-    `name` VARCHAR(25),
+    `name` VARCHAR(25) NOT NULL UNIQUE,
     PRIMARY KEY(id)
 );
 
@@ -150,7 +150,7 @@ CREATE TABLE user_post_comments (
     id INT UNSIGNED AUTO_INCREMENT,
     user_id INT UNSIGNED,
     post_id INT UNSIGNED,
-    comment VARCHAR(250),
+    comment VARCHAR(250) NOT NULL,
     commented_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(id),
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -207,12 +207,12 @@ CREATE TABLE post_tags (
 
 CREATE TABLE user_logs (
     id INT UNSIGNED AUTO_INCREMENT,
-    `type` VARCHAR(50), -- The action type: 'insert', 'update', 'delete'
+    `type` ENUM('insert', 'update', 'delete') NOT NULL,
     old_username VARCHAR(32),
     new_username VARCHAR(32),
     old_password VARCHAR(128),
     new_password VARCHAR(128),
-    action_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    action_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(id)
 );
 
