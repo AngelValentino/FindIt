@@ -1,3 +1,5 @@
+-- Personal assessment of the most likely frequently used queries for FindIt.db
+
 -- USER MANAGEMENT
 
 -- Get user profile
