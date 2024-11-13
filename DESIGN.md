@@ -261,7 +261,7 @@ This table is created through the `log_user_inserts`, `log_user_updates`, and `l
 
 The below entity relationship diagram describes the relationships among the entities in the database.
 
-![Entity Relationship Diagram for FindIt, illustrating the relationships between various entities in the database schema.](https://i.imgur.com/gtdIKYa.jpeg)
+![Entity Relationship Diagram for FindIt, illustrating the relationships between various entities in the database schema.](https://i.imgur.com/PyoE22V.jpeg)
 
 It’s important to keep in mind that only communities can upload and manage posts. Additionally, for a community to exist, it must have at least one owner. However, a user may not own any communities.
 
