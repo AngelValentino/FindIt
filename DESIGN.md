@@ -46,7 +46,6 @@ The following elements are **out of scope** for the current social media databas
 
 Entities are represented as **MySQL** tables, structured according to the following schema. An **Entity-Relationship (ER) diagram** is also provided for a visual representation of the database structure.
 
-
 ### Entities
 
 The database includes the following entities:
@@ -54,7 +53,6 @@ The database includes the following entities:
 #### users
 
 The `users` table includes:
-
 
 - `id`: Specifies the unique ID for the user as an `INT UNSIGNED`. This column has the `PRIMARY KEY` constraint.
 - `first_name`: Specifies the first name of the user as a `VARCHAR(50)`.This column has the `NOT NULL` constraint.
@@ -242,7 +240,7 @@ The `post_tags` table includes:
 
 The combination of `post_id` and `tag_id` forms the `PRIMARY KEY(post_id, tag_id)` to ensure each post can be linked to a tag only once, preventing duplicate tag records.
 
-#### **user_logs**
+#### user_logs
 
 The `user_logs` table includes:
 
@@ -256,7 +254,6 @@ The `user_logs` table includes:
 
 This table is created through the `log_user_inserts`, `log_user_updates`, and `log_user_deletes` triggers to log changes made to sensitive user information for security purposes.
 
-
 ### Relationships
 
 The below entity relationship diagram describes the relationships among the entities in the database.
@@ -265,9 +262,11 @@ The below entity relationship diagram describes the relationships among the enti
 
 It’s important to keep in mind that only communities can upload and manage posts. Additionally, for a community to exist, it must have at least one owner. However, a user may not own any communities.
 
+
 ## Optimizations
 
 I strongly believe that further and extended optimization should not be implemented before we have a clear understanding of how users interact with the application, particularly with the database. While MySQL and other DBMS provide tools to analyze query performance, I believe the best approach is to wait for real data before optimizing the database. Implementing indexes prematurely can be risky, as it is uncertain whether they will be utilized as expected. Since adding indexes can slow down insertions, deletions, and updates, we must be cautious and avoid implementing them until we have actual user analytics and behavior data.
+
 
 ## Limitations
 
