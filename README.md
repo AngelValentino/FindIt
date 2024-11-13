@@ -2,6 +2,6 @@
 
 **FindIt's** database is built using **MySQL**, a powerful relational database management system that supports the application's data storage and management needs. An **Entity-Relationship (ER) diagram** is also provided for a visual representation of the database structure.
 
-![Entity Relationship Diagram for FindIt, illustrating the relationships between various entities in the database schema.](https://i.imgur.com/sd3K0Zl.jpeg)
+![Entity Relationship Diagram for FindIt, illustrating the relationships between various entities in the database schema.](https://i.imgur.com/gtdIKYa.jpeg)
 
 For a more detailed understanding of the database design, please refer to the [design.md](https://github.com/AngelValentino/FindIt/blob/main/DESIGN.md).
