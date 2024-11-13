@@ -36,9 +36,9 @@ CREATE TABLE users (
     last_name VARCHAR(50) NOT NULL,
     username VARCHAR(32) NOT NULL UNIQUE,
     birthdate DATE NOT NULL,
-    bio VARCHAR(250),
     password_hash VARCHAR(128) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
+    bio VARCHAR(250),
     profile_image_url VARCHAR(512),
     banner_image_url VARCHAR(512),
     PRIMARY KEY(id)

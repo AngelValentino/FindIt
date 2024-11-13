@@ -6,15 +6,15 @@ Video overview: https://youtu.be/h1ngXlShdCY
 
 ## Scope
 
-**Findit** is designed to be a social media application where the main objective is to encourage users to **meet others in real life**. It aims to create the opposite experience of current social media apps by not encouraging prolonged time spent on the site. The application provides only the necessary tools to help users find places to go, meet people and connect each other. It is designed to manage user profiles, community interactions and content creation within the platform.
+**Findit** is designed to be a social media application where the main objective is to encourage users to **meet others in real life**. It aims to create the opposite experience of current social media apps by not encouraging prolonged time spent on the site. The application provides only the necessary tools to help users find places to go, meet people and connect with each other. It is designed to manage user profiles, community interactions and content creation within the platform.
 
 - **Users**: Contains information about the users, including personal details like first name, last name, username, birthdate, email, profile and banner images, and biography.
-- **Communities**: Represents groups or forums where users can join, create, and participate. Each community includes details like title, bio, description, business contact information, and event locations. Moreover, a community must be owned by at least one user.
+- **Communities**: Represents groups or forums where users can join and participate. Each community includes details like title, bio, description, business contact information, and event locations. Moreover, a community must be owned by at least one user.
 - **Community Posts**: Content created within communities. Which can include titles, descriptions, locations, and the ability to interact with posts (e.g., likes, comments, and interests).
 - **Friendships**: Tracks user relationships, including accepted friendships, pending requests, and rejected connections between users.
 - **User Interactions with Posts**: Records user interactions on posts, such as liking, disliking, commenting, and expressing interest in specific community posts.
 - **Community Ratings**: Users can rate communities and leave comments, providing feedback on their experience within the community.
-- **User-Owned Communities**: Keeps track of which users own or manage communities, along with the creation timestamp.
+- **User-Owned Communities**: Keeps track of which users own or manage communities, along with the owned timestamp.
 - **Categories and Subcategories**: Categories and subcategories help organize posts and communities by type (e.g., cars, trains, motorcycles) and further classify them into specific subtypes (e.g., vintage, modern, electric).
 - **Tags**: Tags are used to describe and categorize posts, helping users find related content.
 - **User Activity Logs**: Includes triggers for logging changes in user profiles (such as inserts, updates, or deletes) for tracking and security reasons.
@@ -61,9 +61,9 @@ The `users` table includes:
 - `birthdate`: Specifies the birthdate of the user as a `DATE`. This column has the `NOT NULL` constraint.
 - `password_hash`: Specifies the hashed password for the user as a `VARCHAR(128)`. This column has the `NOT NULL` constraint.
 - `email`: Specifies the email address of the user as a `VARCHAR(255)`. This column has the `UNIQUE` and `NOT NULL` constraints  to ensure each user's email is distinct.
+- `bio`: Specifies the bio or description of the user as a `VARCHAR(250)`. This column is optional and can be `NULL`.
 - `profile_image_url`: Specifies the URL for the user's profile image as a `VARCHAR(512)`. This image is expected to be stored in a CDN. This column is optional and can be `NULL`.
 - `banner_image_url`: Specifies the URL for the user's banner image as a `VARCHAR(512)`. This image is expected to be stored in a CDN. This column is optional and can be `NULL`.
-- `bio`: Specifies the bio or description of the user as a `VARCHAR(250)`. This column is optional and can be `NULL`.
 
 #### communities
 
@@ -120,7 +120,7 @@ The combination of `category_id` and `subcategory_id` forms the `PRIMARY KEY(cat
 The `tags` table includes:
 
 - `id`: Specifies the unique ID for the tag as an `INT UNSIGNED`. This column has the `PRIMARY KEY` constraint.
-- `name`: Specifies the name of the tag as a `VARCHAR(25)`. This column has the `UNIQUE` and `NOT NULL` constraints to ensure each tag is distinct and to avoid creating duplicate tags if two users type the same one. Instead, we can simply query the existing tag.
+- `name`: Specifies the name of the tag as a `VARCHAR(25)`. This column has the `UNIQUE` and `NOT NULL` constraints to ensure each tag is distinct and to avoid creating duplicate names if two users type the same one. Instead, we can simply query the existing tag.
 
 #### user_friends
 
