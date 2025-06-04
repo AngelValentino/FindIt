@@ -4,6 +4,6 @@
 
 Video overview: https://youtu.be/h1ngXlShdCY
 
-![Entity Relationship Diagram for FindIt, illustrating the relationships between various entities in the database schema.](https://i.imgur.com/PyoE22V.jpeg)
+![Entity Relationship Diagram for FindIt, illustrating the relationships between various entities in the database schema.](./findit-db-er-diagram.jpg)
 
 For a more detailed understanding of the database design, please refer to the [design.md](https://github.com/AngelValentino/FindIt/blob/main/DESIGN.md).

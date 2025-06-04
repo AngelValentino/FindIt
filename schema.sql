@@ -232,7 +232,7 @@ AFTER UPDATE ON users
 FOR EACH ROW
 BEGIN
     IF OLD.username != NEW.username OR OLD.password_hash != NEW.password_hash THEN
-        INSERT INTO user_logs (type, old_username, new_username, old_password, new_password)
+        INSERT INTO user_logs (`type`, old_username, new_username, old_password, new_password)
         VALUES ('update', OLD.username, NEW.username, OLD.password_hash, NEW.password_hash);
     END IF;
 END $$
